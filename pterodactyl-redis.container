@@ -1,0 +1,15 @@
+[Unit]
+Description=Pterodactyl Redis cache
+After=pterodactyl-network.service
+Requires=pterodactyl-network.service
+
+[Container]
+Image=docker.io/library/redis:alpine
+ContainerName=pterodactyl-redis
+Network=pterodactyl.network
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=default.target

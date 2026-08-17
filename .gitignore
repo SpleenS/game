@@ -1,0 +1,18 @@
+#IGNORE ALL
+*
+
+#Descend into dirs so nested allows work
+!*/
+
+#ALLOW: quadlet unit files and this ignore file
+!.gitignore
+!*.container
+!*.network
+!*.volume
+!*.pod
+!amnesia/**
+!README.md
+
+#NEVER TRACK: secrets
+*.env
+**/*.env

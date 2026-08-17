@@ -1,0 +1,8 @@
+[Unit]
+Description=Pterodactyl internal network
+
+[Network]
+NetworkName=pterodactyl
+
+[Install]
+WantedBy=default.target

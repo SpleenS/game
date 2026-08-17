@@ -1,0 +1,27 @@
+[Unit]
+Description=Promtail (game's own container logs -> Loki on helm)
+
+[Container]
+ContainerName=promtail
+Image=docker.io/grafana/promtail:3.6.11
+
+Volume=/var/mnt/podman_data/game/promtail/promtail-config.yaml:/etc/promtail/config.yaml:ro
+Volume=/var/log/journal:/var/log/journal:ro
+Volume=promtail_positions:/positions
+
+Exec=-config.file=/etc/promtail/config.yaml
+
+# Rootless podman maps container uid 0 -> real host uid (dylan) - needed to
+# inherit dylan's own journal-read ACL. See helm's promtail.container for
+# the full explanation; same reasoning applies here.
+User=0:0
+
+NoNewPrivileges=true
+SecurityLabelDisable=true
+
+[Service]
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target

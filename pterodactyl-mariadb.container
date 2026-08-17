@@ -1,0 +1,18 @@
+[Unit]
+Description=Pterodactyl MariaDB
+After=pterodactyl-network.service
+Requires=pterodactyl-network.service
+
+[Container]
+Image=docker.io/library/mariadb:11
+ContainerName=pterodactyl-mariadb
+Network=pterodactyl.network
+Volume=pterodactyl-mariadb-data:/var/lib/mysql
+Environment=MYSQL_DATABASE=panel
+Environment=MYSQL_USER=pterodactyl
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=default.target

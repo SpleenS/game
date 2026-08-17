@@ -1,0 +1,30 @@
+[Unit]
+Description=Pterodactyl Panel
+After=pterodactyl-mariadb.service pterodactyl-redis.service
+Requires=pterodactyl-mariadb.service pterodactyl-redis.service
+
+[Container]
+Image=ghcr.io/pterodactyl/panel:latest
+ContainerName=pterodactyl-panel
+Network=pterodactyl.network
+Volume=pterodactyl-panel-var:/app/var/
+Volume=pterodactyl-panel-nginx:/etc/nginx/http.d/
+Volume=pterodactyl-panel-certs:/etc/letsencrypt/
+Volume=pterodactyl-panel-logs:/app/storage/logs
+PublishPort=8080:80
+Environment=DB_HOST=pterodactyl-mariadb
+Environment=DB_PORT=3306
+Environment=DB_DATABASE=panel
+Environment=DB_USERNAME=pterodactyl
+Environment=DB_PASSWORD=VI7EyIogUvIE-WrnwX-ML0jMo9W3m8bN
+Environment=REDIS_HOST=pterodactyl-redis
+Environment=CACHE_DRIVER=redis
+Environment=SESSION_DRIVER=redis
+Environment=QUEUE_DRIVER=redis
+Environment=APP_URL=https://gaming.rozak.io
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=default.target
