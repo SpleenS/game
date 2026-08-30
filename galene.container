@@ -1,0 +1,19 @@
+[Unit]
+Description=Galene voice/video lobby
+After=network-online.target
+Wants=network-online.target
+
+[Container]
+ContainerName=galene
+Image=localhost/galene:latest
+PublishPort=61060:61060/tcp
+PublishPort=61061:61061/tcp
+PublishPort=61061:61061/udp
+Exec=-http :61060 -turn 65.110.23.69:61061 -data /app/data -groups /app/groups
+
+[Service]
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=default.target
