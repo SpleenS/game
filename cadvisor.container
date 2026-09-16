@@ -1,0 +1,25 @@
+[Unit]
+Description=cAdvisor (per-container metrics)
+
+[Container]
+Image=gcr.io/cadvisor/cadvisor:v0.49.1
+ContainerName=cadvisor
+Network=host
+
+Volume=/sys/fs/cgroup:/sys/fs/cgroup:ro
+Volume=/var/run/user/1000/podman/podman.sock:/var/run/docker.sock:ro
+Volume=/home/dylan/.local/share/containers/storage:/home/dylan/.local/share/containers/storage:ro
+Volume=/proc:/host/proc:ro
+Volume=/sys:/host/sys:ro
+
+Exec=--housekeeping_interval=15s --disable_root_cgroup_stats=false -port=9280 -listen_ip=192.168.99.30
+
+NoNewPrivileges=true
+SecurityLabelDisable=true
+
+[Service]
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target

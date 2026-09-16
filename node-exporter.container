@@ -1,0 +1,25 @@
+[Unit]
+Description=Prometheus node_exporter
+
+[Container]
+Image=docker.io/prom/node-exporter:v1.9.1
+ContainerName=node-exporter
+Network=host
+
+Volume=/proc:/host/proc:ro
+Volume=/sys:/host/sys:ro
+Volume=/:/host/root:ro
+
+Exec=--path.procfs=/host/proc --path.sysfs=/host/sys --path.rootfs=/host/root --web.listen-address=192.168.99.30:9100 --collector.filesystem.mount-points-exclude=^/(dev|proc|sys|var/lib/docker/.+|var/lib/containers/storage/.+)($|/)
+
+PodmanArgs=--pid=host
+NoNewPrivileges=true
+DropCapability=ALL
+SecurityLabelDisable=true
+
+[Service]
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target
