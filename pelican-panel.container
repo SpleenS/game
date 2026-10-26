@@ -9,6 +9,12 @@ ContainerName=pelican-panel
 Network=pterodactyl.network
 Volume=pelican-data:/pelican-data
 Volume=pelican-logs:/var/www/html/storage/logs
+Volume=pelican-plugins:/var/www/html/plugins
+# rozak.io local patch to the subdomains plugin (per-user prefixes + Vintage Story SRV).
+# Read-only on purpose: a plugin update cannot silently drop it. See pelican-patches/subdomains/.
+Volume=%h/.config/containers/systemd/pelican-patches/subdomains/CloudflareDomain.php:/var/www/html/plugins/subdomains/src/Models/CloudflareDomain.php:ro,z
+Volume=%h/.config/containers/systemd/pelican-patches/subdomains/RecordType.php:/var/www/html/plugins/subdomains/src/Enums/RecordType.php:ro,z
+Volume=%h/.config/containers/systemd/pelican-patches/subdomains/SRVServiceType.php:/var/www/html/plugins/subdomains/src/Enums/SRVServiceType.php:ro,z
 PublishPort=8080:80
 # Pelican runs as non-root; rootless podman needs this to let Caddy bind :80
 Sysctl=net.ipv4.ip_unprivileged_port_start=0
@@ -32,6 +38,13 @@ Environment=OAUTH_AUTHENTIK_BASE_URL=https://auth.rozak.io
 Environment=OAUTH_AUTHENTIK_DISPLAY_NAME=Authentik
 Environment=OAUTH_AUTHENTIK_SHOULD_CREATE_MISSING_USERS=true
 Environment=OAUTH_AUTHENTIK_SHOULD_LINK_MISSING_USERS=false
+Environment=UCS_ALLOWED_EGGS=30,15
+Environment=UCS_DEPLOYMENT_PORTS=61050-61100
+Environment=UCS_DEFAULT_ALLOCATION_LIMIT=1
+Environment=UCS_DEFAULT_SUBDOMAIN_LIMIT=1
+Environment=UCS_DEFAULT_BACKUP_LIMIT=1
+Environment=UCS_DEFAULT_DATABASE_LIMIT=0
+Environment=UCS_CAN_USERS_DELETE_SERVERS=true
 Label=traefik.enable=true
 Label=kop.bind.ip=100.113.67.172
 Label="traefik.http.routers.gaming.rule=Host(`gaming.rozak.io`) || Host(`gaming.mesh.rozak.io`)"
