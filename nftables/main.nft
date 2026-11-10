@@ -1,0 +1,90 @@
+table inet filter {
+    #
+    # VLAN99 (ens19) - shared storage + proxy segment, NOT point-to-point.
+    #   192.168.99.1   = TrueNAS  (NFS4 export backing /var/mnt/podman_data)
+    #   192.168.99.21  = edge     (Traefik -> Pterodactyl panel)
+    #   192.168.99.172 = helm     (podman host, backplane peer)
+    #   192.168.99.20  = micro    (podman host, backplane peer)
+    #   192.168.99.30  = this host (game)
+    #
+    chain vlan99 {
+        # NFS to the TrueNAS is client-initiated from this host, so its
+        # replies arrive as established. This MUST stay first: dropping it
+        # severs /var/mnt/podman_data, which holds the IaC repo and the
+        # .env the panel quadlets read via EnvironmentFile=.
+        ct state established,related accept
+        ct state invalid drop
+
+        # Traefik on edge -> Pterodactyl panel HTTP
+        ip saddr 192.168.99.21 tcp dport 8080 accept
+
+        # Traefik on edge -> Wings daemon API (console/file-manager proxy,
+        # added 2026-08-23 so the panel console works over a trusted
+        # wildcard cert instead of a self-signed one on the direct
+        # ens18:8443 path)
+        ip saddr 192.168.99.21 tcp dport 8443 accept
+        ip saddr 192.168.99.21 tcp dport 7007 accept
+
+        # TrueNAS storage peer
+        ip saddr 192.168.99.1 accept
+
+        # helm/micro - other podman hosts on the backplane segment,
+        # same trust tier as TrueNAS above
+        ip saddr { 192.168.99.172, 192.168.99.20 } accept
+
+        # Ping from known peers, for troubleshooting
+        ip saddr { 192.168.99.1, 192.168.99.21, 192.168.99.172, 192.168.99.20 } icmp type echo-request accept
+
+        # Anything else on this segment is not expected
+        drop
+    }
+
+    chain input {
+        type filter hook input priority 0; policy drop;
+
+        iif "lo" accept
+
+        # Podman bridge networking - containers reach host-local services
+        # on the bridge gateway (e.g. aardvark-dns for container DNS)
+        iifname "podman*" accept
+
+        # VLAN99 policy lives in its own chain. This jump must precede the
+        # general ICMP accept below, or that rule would let any host on the
+        # segment ping us regardless of the vlan99 chain.
+        iifname "ens19" jump vlan99
+
+        ct state established,related accept
+        ct state invalid drop
+
+        ip protocol icmp accept
+        ip6 nexthdr icmpv6 accept
+
+        # SSH admin access - ens18 is also the current admin path (10.0.0.10 via 192.168.30.1 gw)
+        iifname "ens18" tcp dport 22 accept
+
+        # Game server allocations (Pterodactyl node allocations, 61000-61100)
+        iifname "ens18" tcp dport 61000-61100 accept
+        iifname "ens18" udp dport 61000-61100 accept
+
+        # Wings SFTP - file manager access for game servers
+        iifname "ens18" tcp dport 2022 accept
+
+        # Wings daemon API - browsers connect here directly (console, file manager)
+        iifname "ens18" tcp dport 8443 accept
+    }
+
+    chain forward {
+        type filter hook forward priority 0; policy drop;
+
+        ct state established,related accept
+        ct state invalid drop
+
+        # Podman bridge networking (rootful, used by Wings-managed game containers)
+        iifname "podman*" accept
+        oifname "podman*" accept
+    }
+
+    chain output {
+        type filter hook output priority 0; policy accept;
+    }
+}
