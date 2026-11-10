@@ -16,3 +16,5 @@
 #NEVER TRACK: secrets
 *.env
 **/*.env
+!nftables/
+!nftables/**
