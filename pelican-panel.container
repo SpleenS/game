@@ -15,7 +15,7 @@ PublishPort=8080:80
 Sysctl=net.ipv4.ip_unprivileged_port_start=0
 Environment=XDG_DATA_HOME=/pelican-data
 Environment=APP_INSTALLED=true
-Environment=APP_URL=https://gaming.mesh.rozak.io
+Environment=APP_URL=https://gaming.rozak.io
 Environment=BEHIND_PROXY=true
 Environment=TRUSTED_PROXIES=10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,100.64.0.0/10
 Environment=DB_CONNECTION=mariadb
@@ -33,7 +33,7 @@ Environment=OAUTH_AUTHENTIK_BASE_URL=https://auth.rozak.io
 Environment=OAUTH_AUTHENTIK_DISPLAY_NAME=Authentik
 Environment=OAUTH_AUTHENTIK_SHOULD_CREATE_MISSING_USERS=true
 Environment=OAUTH_AUTHENTIK_SHOULD_LINK_MISSING_USERS=false
-Environment=UCS_ALLOWED_EGGS=31,32,33,34,37,15
+Environment=UCS_ALLOWED_EGGS=5,3,2,35,37,15
 Environment=UCS_DEPLOYMENT_PORTS=61050-61100
 Environment=UCS_DEFAULT_ALLOCATION_LIMIT=1
 Environment=UCS_DEFAULT_SUBDOMAIN_LIMIT=1
@@ -46,8 +46,8 @@ Label="traefik.http.routers.gaming.rule=Host(`gaming.rozak.io`) || Host(`gaming.
 Label=traefik.http.routers.gaming.entryPoints=web,websecure
 Label=traefik.http.routers.gaming.tls=true
 Label=traefik.http.routers.gaming.tls.certResolver=cloudflare
-Label=traefik.http.routers.gaming.tls.domains[0].main=mesh.rozak.io
-Label=traefik.http.routers.gaming.tls.domains[0].sans=*.mesh.rozak.io
+Label=traefik.http.routers.gaming.tls.domains[0].main=rozak.io
+Label=traefik.http.routers.gaming.tls.domains[0].sans=*.rozak.io
 Label=traefik.http.routers.gaming.service=gaming
 Label=traefik.http.services.gaming.loadbalancer.server.port=8080
 Label=traefik.http.services.gaming.loadbalancer.passhostheader=true
